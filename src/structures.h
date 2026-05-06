@@ -569,11 +569,9 @@ struct srvparam {
 	uint16_t targetport;
 	unsigned char replace;
 	time_t time_start;
-#ifndef NOUDPMAIN
-	unsigned char udpbuf[UDPBUFSIZE];
-	unsigned char udpbuf2[UDPBUFSIZE];
+	unsigned char *udpbuf;
+	unsigned char *udpbuf2;
 	int udplen;
-#endif
 };
 
 struct clientparam {

@@ -349,6 +349,14 @@ int MODULEMAINFUNC (int argc, char** argv){
 #ifndef NOUDPMAIN
  if(isudp) {
 	if(!udp_table.ihashtable)inithashtable(&udp_table, 64, 256, 65536);
+	srv.udpbuf = malloc(UDPBUFSIZE);
+	srv.udpbuf2 = malloc(UDPBUFSIZE);
+	if(!srv.udpbuf || !srv.udpbuf2) {
+#ifndef STDMAIN
+		haveerror = 2;
+#endif
+		return 11;
+	}
  }
 #endif
  srv.service = defparam.service = childdef.service;
@@ -995,8 +1003,8 @@ int MODULEMAINFUNC (int argc, char** argv){
 		if(hashresolv(&udp_table, &defparam, &toparam, NULL)) {
 		    int i, len=0;
 		
-		    if(toparam->udp_nhops - 1){
-			for(i=1; i < toparam->udp_nhops - 1; i++){
+		    if(toparam->udp_nhops){
+			for(i=1; i < toparam->udp_nhops; i++){
 			    len+=socks5_udp_build_hdr(srv.udpbuf2+len, &toparam->udp_relay[i-1]);
     			}
     			len += socks5_udp_build_hdr(srv.udpbuf2+len, &toparam->req);
@@ -1241,6 +1249,10 @@ void srvfree(struct srvparam * srv){
  if(srv->onetns) free(srv->onetns);
 #endif
  if(srv->so.freefunc) srv->so.freefunc(srv->so.state);
+#ifndef NOUDPMAIN
+ if(srv->udpbuf) free(srv->udpbuf);
+ if(srv->udpbuf2) free(srv->udpbuf2);
+#endif
 }
 
 

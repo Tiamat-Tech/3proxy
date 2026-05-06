@@ -75,7 +75,6 @@ void * udppmchild(struct clientparam* param) {
 	param->srvinbuf = 0;
 	param->nwrites++;
 	param->clisock = param->srv->srvsock;
-	param->udp_nhops++;
 	param->waitserver64 = 0x7fffffffffffffff;
 	param->res = udpsockmap(param, conf.timeouts[STRING_L]);
 	_3proxy_sem_lock(udpinit);

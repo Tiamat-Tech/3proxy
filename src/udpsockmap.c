@@ -57,6 +57,8 @@ int udpsockmap(struct clientparam *param, int timeo)
 	int nhops = param->udp_nhops;
 	int clisock_idx = -1, ctrlsock_idx = -1, ctrlsocksrv_idx = -1;
 	int firstpacket = 1;
+	
+	if(param->srv->service == S_UDPPM) nhops++;
 	if (param->srvbufsize < UDPBUFSIZE) {
 		unsigned char *newbuf = realloc(param->srvbuf, UDPBUFSIZE);
 		if (!newbuf) return 21;
