@@ -247,6 +247,8 @@ fflush(stderr);
 		sin = param->sincl;
 		*SAPORT(&sin) = 0;
 		if(param->srv->so._bind(param->sostate, param->clisock,(struct sockaddr *)&sin,SASIZE(&sin))) {RETURN (12);}
+		sasize = SASIZE(&sin);
+		param->srv->so._getsockname(param->sostate, param->clisock, (struct sockaddr *)&sin, &sasize);
 #if SOCKSTRACE > 0
 fprintf(stderr, "%hu binded to communicate with client\n",
 			ntohs(*SAPORT(&sin))
@@ -264,7 +266,7 @@ fflush(stderr);
 
 CLEANRET:
 
- if(param->clisock != INVALID_SOCKET){
+ if(param->clisock != INVALID_SOCKET && buf){
 	int repcode;
 
 	sasize = sizeof(sin);
@@ -285,7 +287,7 @@ CLEANRET:
 	    }
 	}    
 #if SOCKSTRACE > 0
-myinet_ntop(*SAFAMILY(&sin), &sin, tracebuf, SASIZE(&sin));
+myinet_ntop(*SAFAMILY(&sin), SAADDR(&sin), tracebuf, SASIZE(&sin));
 fprintf(stderr, "Sending confirmation to client with code %d for %s with %s:%hu\n",
 			param->res,
 			commands[command],
@@ -299,6 +301,8 @@ fflush(stderr);
 	else if (param->res < 20) repcode = 5;
 	else if (param->res < 30) repcode = 1;
 	else if (param->res < 100) repcode = 4;
+	else if (param->res == 100) repcode = 4;
+	else if (param->res == 997) repcode = 8;
 	else repcode = param->res%10;
 
 	if(ver == 5){
@@ -365,7 +369,7 @@ fflush(stderr);
 					param->res = 462;
 					break;
 				}
-				if(SAISNULL(&param->req) &&
+				if(!SAISNULL(&param->req) &&
 				 memcmp(SAADDR(&param->req),SAADDR(&param->sinsr),SAADDRLEN(&param->req))) {
 					param->res = 470;
 					break;
