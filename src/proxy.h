@@ -121,8 +121,12 @@ void daemonize(void);
 #endif
 
 #ifdef _WIN32
+#ifndef strcasecmp
 #define strcasecmp stricmp
+#endif
+#ifndef strncasecmp
 #define strncasecmp strnicmp
+#endif
 #define seterrno3(x) _set_errno(x)
 #else
 #define seterrno3(x) (errno = x) 
